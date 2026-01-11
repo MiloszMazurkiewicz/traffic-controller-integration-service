@@ -123,10 +123,31 @@ src/main/java/com/traffic/
 
 ## Running Tests
 
-```bash
-# Run all tests (requires Docker for TestContainers)
-mvn test
+Integration tests use TestContainers to spin up a PostgreSQL container automatically.
 
-# Run with verbose output
-mvn test -Dspring.test.verbose=true
+```bash
+# Run all tests (requires Docker)
+mvn test
 ```
+
+### Colima / Non-Docker Desktop Setup
+
+If using Colima or another Docker alternative, configure TestContainers:
+
+```bash
+# Create ~/.testcontainers.properties
+cat > ~/.testcontainers.properties << 'EOF'
+docker.host=unix://${HOME}/.colima/default/docker.sock
+ryuk.disabled=true
+EOF
+
+# Run tests with Ryuk disabled
+TESTCONTAINERS_RYUK_DISABLED=true mvn test
+```
+
+### Test Coverage
+
+| Test Class | Tests | Description |
+|------------|-------|-------------|
+| `MonitoringControllerIntegrationTest` | 4 | REST API endpoint tests |
+| `IngestionServiceTest` | 3 | Data polling and persistence tests |
