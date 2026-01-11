@@ -6,7 +6,9 @@ A Spring Boot service that integrates with remote traffic controllers, normalize
 
 ### One-Command Setup (Docker Compose)
 ```bash
-docker compose up
+docker-compose up
+# or with Docker Compose v2:
+# docker compose up
 ```
 This starts PostgreSQL and the application. Service available at `http://localhost:8080`.
 
