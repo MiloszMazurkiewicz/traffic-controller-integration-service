@@ -5,6 +5,7 @@ import com.traffic.controller.dto.CommandRequest;
 import com.traffic.domain.Controller;
 import com.traffic.domain.ControllerStatus;
 import com.traffic.domain.DetectorReading;
+import com.traffic.repository.CommandExecutionRepository;
 import com.traffic.repository.ControllerRepository;
 import com.traffic.repository.ControllerStatusRepository;
 import com.traffic.repository.DetectorReadingRepository;
@@ -38,6 +39,9 @@ class MonitoringControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private DetectorReadingRepository detectorReadingRepository;
 
+    @Autowired
+    private CommandExecutionRepository commandExecutionRepository;
+
     private static final String TEST_CONTROLLER_ID = "test.controller.1";
 
     @BeforeEach
@@ -46,6 +50,7 @@ class MonitoringControllerIntegrationTest extends AbstractIntegrationTest {
                 .baseUrl("http://localhost:" + port)
                 .build();
 
+        commandExecutionRepository.deleteAll();
         detectorReadingRepository.deleteAll();
         controllerStatusRepository.deleteAll();
         controllerRepository.deleteAll();

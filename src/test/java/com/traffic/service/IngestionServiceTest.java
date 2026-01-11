@@ -4,6 +4,7 @@ import com.traffic.AbstractIntegrationTest;
 import com.traffic.domain.Controller;
 import com.traffic.domain.ControllerStatus;
 import com.traffic.domain.DetectorReading;
+import com.traffic.repository.CommandExecutionRepository;
 import com.traffic.repository.ControllerRepository;
 import com.traffic.repository.ControllerStatusRepository;
 import com.traffic.repository.DetectorReadingRepository;
@@ -29,10 +30,16 @@ class IngestionServiceTest extends AbstractIntegrationTest {
     @Autowired
     private DetectorReadingRepository detectorReadingRepository;
 
+    @Autowired
+    private CommandExecutionRepository commandExecutionRepository;
+
     @BeforeEach
     void setUp() {
+        commandExecutionRepository.deleteAll();
         detectorReadingRepository.deleteAll();
         controllerStatusRepository.deleteAll();
+        // Re-register controllers since they may have been deleted by other tests
+        ingestionService.registerControllers();
     }
 
     @Test
