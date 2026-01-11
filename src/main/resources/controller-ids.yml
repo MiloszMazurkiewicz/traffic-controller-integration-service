@@ -1,0 +1,7 @@
+controllers:
+  ids:
+    - fd132.z1.highway.a21.loc
+    - fd11.z1.downtown.loc
+    - fd35.z1.suburb12.loc
+    - fd88.z2.industrial.loc
+    - fd99.z3.airport.loc
