@@ -4,27 +4,28 @@ A Spring Boot service that integrates with remote traffic controllers, normalize
 
 ## Quick Start
 
-### Prerequisites
-- Java 25+
-- Maven 3.8+
-- Docker (for PostgreSQL)
-
-### Run PostgreSQL
+### One-Command Setup (Docker Compose)
 ```bash
+docker compose up
+```
+This starts PostgreSQL and the application. Service available at `http://localhost:8080`.
+
+### Manual Setup
+
+**Prerequisites:** Java 25+, Maven 3.8+, Docker
+
+```bash
+# Start PostgreSQL
 docker run -d --name traffic-postgres \
   -e POSTGRES_DB=traffic_controller \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -p 5432:5432 \
   postgres:15
-```
 
-### Run the Application
-```bash
+# Run the application
 mvn spring-boot:run
 ```
-
-The service starts on `http://localhost:8080`.
 
 ## Data Flow
 
