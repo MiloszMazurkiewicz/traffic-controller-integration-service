@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+controllers:
+  ids:
+    - fd132.z1.highway.a21.loc
+    - fd11.z1.downtown.loc
+    - fd35.z1.suburb12.loc
+    - fd88.z2.industrial.loc
+    - fd99.z3.airport.loc
+
+ingestion:
+  polling-interval-ms: 60000
