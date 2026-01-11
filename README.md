@@ -12,6 +12,8 @@ docker-compose up
 ```
 This starts PostgreSQL and the application. Service available at `http://localhost:8080`.
 
+**Swagger UI:** `http://localhost:8080/swagger-ui.html`
+
 ### Manual Setup
 
 **Prerequisites:** Java 25+, Maven 3.8+, Docker
