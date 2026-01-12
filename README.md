@@ -150,5 +150,5 @@ EOF
 
 | Test Class | Tests | Description |
 |------------|-------|-------------|
-| `MonitoringControllerIntegrationTest` | 4 | REST API endpoint tests |
+| `MonitoringControllerIntegrationTest` | 13 | REST API endpoints, 404 errors, edge cases, pagination |
 | `IngestionServiceTest` | 3 | Data polling and persistence tests |
