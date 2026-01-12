@@ -2,6 +2,10 @@ spring:
   application:
     name: traffic-controller-integration-service
 
+  threads:
+    virtual:
+      enabled: true
+
   datasource:
     url: jdbc:postgresql://localhost:5432/traffic_controller
     username: postgres
