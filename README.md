@@ -132,22 +132,18 @@ Integration tests use TestContainers to spin up a PostgreSQL container automatic
 
 ```bash
 # Run all tests (requires Docker)
-mvn test
+TESTCONTAINERS_RYUK_DISABLED=true mvn test
 ```
 
-### Colima / Non-Docker Desktop Setup
+### Colima Setup
 
-If using Colima or another Docker alternative, configure TestContainers:
+If using Colima, create the TestContainers config file:
 
 ```bash
-# Create ~/.testcontainers.properties
 cat > ~/.testcontainers.properties << 'EOF'
 docker.host=unix://${HOME}/.colima/default/docker.sock
 ryuk.disabled=true
 EOF
-
-# Run tests with Ryuk disabled
-TESTCONTAINERS_RYUK_DISABLED=true mvn test
 ```
 
 ### Test Coverage

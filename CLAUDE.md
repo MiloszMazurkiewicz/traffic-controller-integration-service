@@ -13,7 +13,7 @@ Traffic Controller Integration Service - a Spring Boot 4.0.1 service (Java 25) t
 mvn clean package
 
 # Run tests (requires Docker for TestContainers)
-mvn test
+TESTCONTAINERS_RYUK_DISABLED=true mvn test
 
 # Run application (requires PostgreSQL on localhost:5432)
 mvn spring-boot:run
