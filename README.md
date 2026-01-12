@@ -34,13 +34,16 @@ mvn spring-boot:run
 ## Data Flow
 
 ```
-┌─────────────────┐     ┌──────────────┐     ┌────────────┐     ┌──────────┐
-│ ProtocolAdapter │────>│ Normalizer   │────>│ PostgreSQL │────>│ REST API │
-│ (Mock Device)   │     │ (DTO→Entity) │     │ (Flyway)   │     │ /api/*   │
-└─────────────────┘     └──────────────┘     └────────────┘     └──────────┘
-        ^                                           │
-        │           @Scheduled polling              │
-        └───────────────────────────────────────────┘
+@Scheduled (30s)
+       │
+       v
+┌──────────────┐     ┌─────────────────┐     ┌────────────┐     ┌──────────┐
+│ Ingestion    │────>│ ProtocolAdapter │     │ PostgreSQL │<────│ REST API │
+│ Service      │<────│ (Mock Device)   │     │            │────>│ /api/*   │
+└──────────────┘     └─────────────────┘     └────────────┘     └──────────┘
+       │                                            ^
+       │            normalize & save                │
+       └────────────────────────────────────────────┘
 ```
 
 **Flow Description:**
