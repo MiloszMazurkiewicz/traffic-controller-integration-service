@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
@@ -166,5 +168,143 @@ class MonitoringControllerIntegrationTest extends AbstractIntegrationTest {
         assertThat(response).isNotNull();
         List<?> content = (List<?>) response.get("content");
         assertThat(content).hasSize(1);
+    }
+
+    // ==================== 404 Error Tests ====================
+
+    @Test
+    void getStatus_whenControllerNotFound_returns404() {
+        HttpStatusCode statusCode = restClient.get()
+                .uri("/api/controllers/{id}/status", "non.existent.controller")
+                .exchange((request, response) -> response.getStatusCode());
+
+        assertThat(statusCode).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void getDetectorReadings_whenControllerNotFound_returns404() {
+        HttpStatusCode statusCode = restClient.get()
+                .uri("/api/controllers/{id}/detectors", "non.existent.controller")
+                .exchange((request, response) -> response.getStatusCode());
+
+        assertThat(statusCode).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void sendCommand_whenControllerNotFound_returns404() {
+        CommandRequest request = new CommandRequest("CHANGE_PROGRAM", "SP2");
+
+        HttpStatusCode statusCode = restClient.post()
+                .uri("/api/controllers/{id}/commands", "non.existent.controller")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .exchange((req, response) -> response.getStatusCode());
+
+        assertThat(statusCode).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void getCommandHistory_whenControllerNotFound_returns404() {
+        HttpStatusCode statusCode = restClient.get()
+                .uri("/api/controllers/{id}/commands/history", "non.existent.controller")
+                .exchange((request, response) -> response.getStatusCode());
+
+        assertThat(statusCode).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    // ==================== Command History Tests ====================
+
+    @Test
+    void getCommandHistory_returnsCommandsInDescendingOrder() {
+        // Send multiple commands
+        restClient.post()
+                .uri("/api/controllers/{id}/commands", TEST_CONTROLLER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new CommandRequest("CHANGE_PROGRAM", "SP1"))
+                .retrieve()
+                .toBodilessEntity();
+
+        restClient.post()
+                .uri("/api/controllers/{id}/commands", TEST_CONTROLLER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new CommandRequest("CHANGE_PROGRAM", "SP2"))
+                .retrieve()
+                .toBodilessEntity();
+
+        Map response = restClient.get()
+                .uri("/api/controllers/{id}/commands/history", TEST_CONTROLLER_ID)
+                .retrieve()
+                .body(Map.class);
+
+        assertThat(response).isNotNull();
+        List<Map<String, Object>> content = (List<Map<String, Object>>) response.get("content");
+        assertThat(content).hasSize(2);
+        // Most recent command should be first
+        assertThat(content.get(0).get("value")).isEqualTo("SP2");
+        assertThat(content.get(1).get("value")).isEqualTo("SP1");
+    }
+
+    // ==================== Edge Case Tests ====================
+
+    @Test
+    void getStatus_whenNoStatusExists_returns204NoContent() {
+        // Controller exists but has no status records
+        HttpStatusCode statusCode = restClient.get()
+                .uri("/api/controllers/{id}/status", TEST_CONTROLLER_ID)
+                .exchange((request, response) -> response.getStatusCode());
+
+        assertThat(statusCode).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    void getDetectorReadings_whenNoReadingsExist_returnsEmptyList() {
+        DetectorReading[] response = restClient.get()
+                .uri("/api/controllers/{id}/detectors", TEST_CONTROLLER_ID)
+                .retrieve()
+                .body(DetectorReading[].class);
+
+        assertThat(response).isEmpty();
+    }
+
+    @Test
+    void getCommandHistory_whenNoCommandsExist_returnsEmptyPage() {
+        Map response = restClient.get()
+                .uri("/api/controllers/{id}/commands/history", TEST_CONTROLLER_ID)
+                .retrieve()
+                .body(Map.class);
+
+        assertThat(response).isNotNull();
+        List<?> content = (List<?>) response.get("content");
+        assertThat(content).isEmpty();
+        assertThat(response.get("totalElements")).isEqualTo(0);
+    }
+
+    @Test
+    void getDetectorReadingsHistory_withPagination_respectsPageSize() {
+        Instant now = Instant.now();
+        // Create 5 readings
+        for (int i = 0; i < 5; i++) {
+            DetectorReading reading = DetectorReading.builder()
+                    .controllerId(TEST_CONTROLLER_ID)
+                    .detectorId(1)
+                    .detectorName("D1")
+                    .vehicleCount(i * 10)
+                    .occupancy(BigDecimal.valueOf(0.1 * i))
+                    .readingTimestamp(now.minusSeconds(i * 60))
+                    .fetchedAt(now.minusSeconds(i * 60))
+                    .build();
+            detectorReadingRepository.save(reading);
+        }
+
+        Map response = restClient.get()
+                .uri("/api/controllers/{id}/detectors/history?page=0&size=2", TEST_CONTROLLER_ID)
+                .retrieve()
+                .body(Map.class);
+
+        assertThat(response).isNotNull();
+        List<?> content = (List<?>) response.get("content");
+        assertThat(content).hasSize(2);
+        assertThat(response.get("totalElements")).isEqualTo(5);
+        assertThat(response.get("totalPages")).isEqualTo(3);
     }
 }
